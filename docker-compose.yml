@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: tecnospeed-postgres
+    environment:
+      POSTGRES_USER: tecnosped
+      POSTGRES_PASSWORD: tecnosped
+      POSTGRES_DB: tecnosped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - tecnospeed-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tecnospeed-projeto
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=tecnosped
+      - DB_USER=tecnosped
+      - DB_PASSWORD=tecnosped
+      - NODE_ENV=production
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - tecnospeed-network
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+
+networks:
+  tecnospeed-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+
+
+
